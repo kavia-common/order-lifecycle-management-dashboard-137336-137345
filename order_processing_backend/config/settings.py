@@ -44,16 +44,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
+    # django-cors-headers must be installed and placed before CommonMiddleware in MIDDLEWARE
     'corsheaders',
     'api'
 ]
 
 MIDDLEWARE = [
+    # Keep CorsMiddleware as high as possible, especially before CommonMiddleware
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    # Remove duplicate CommonMiddleware entry
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -132,7 +134,34 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CORS settings
+# In development keep this permissive. For production, prefer CORS_ALLOWED_ORIGINS and disable ALLOW_ALL.
 CORS_ALLOW_ALL_ORIGINS = True
+# Only allow credentials if you need cookies/auth; for simple GETs keep false to avoid unnecessary preflights.
+CORS_ALLOW_CREDENTIALS = False
+# Explicitly allow common methods
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]
+# Expose common headers so the browser can read them if provided
+CORS_EXPOSE_HEADERS = [
+    "Content-Type",
+    "Content-Length",
+    "X-Requested-With",
+]
+# If you later lock down origins, set:
+# CORS_ALLOWED_ORIGINS = [
+#     "https://vscode-internal-40589-beta.beta01.cloud.kavia.ai:3000",
+# ]
+
+# Reverse proxy / SSL settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
+# Allow embedding docs pages if needed
 X_FRAME_OPTIONS = 'ALLOWALL'
